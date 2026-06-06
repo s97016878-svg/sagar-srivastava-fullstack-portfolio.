@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini CRM - Lead Manager</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    padding:30px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
+}
+
+.card{
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+    margin-bottom:20px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    background:#007bff;
+    color:white;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0056b3;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th, table td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+    text-align:left;
+}
+
+select{
+    padding:6px;
+}
+
+.delete-btn{
+    background:red;
+}
+
+.delete-btn:hover{
+    background:darkred;
+}
+
+.stats{
+    font-size:18px;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Mini CRM - Lead Management System</h1>
+
+    <div class="card">
+        <h2>Add New Lead</h2>
+
+        <div class="form-group">
+            <input type="text" id="name" placeholder="Client Name">
+        </div>
+
+        <div class="form-group">
+            <input type="email" id="email" placeholder="Email">
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="phone" placeholder="Phone Number">
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="company" placeholder="Company Name">
+        </div>
+
+        <button onclick="addLead()">Add Lead</button>
+    </div>
+
+    <div class="card">
+        <div class="stats">
+            Total Leads: <span id="leadCount">0</span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="leadTable"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+
+let leads = JSON.parse(localStorage.getItem("crmLeads")) || [];
+
+function saveLeads(){
+    localStorage.setItem("crmLeads", JSON.stringify(leads));
+}
+
+function addLead(){
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("phone").value;
+    const company = document.getElementById("company").value;
+
+    if(!name || !email){
+        alert("Name and Email are required");
+        return;
+    }
+
+    const lead = {
+        id: Date.now(),
+        name,
+        email,
+        phone,
+        company,
+        status: "New"
+    };
+
+    leads.push(lead);
+
+    saveLeads();
+    renderLeads();
+
+    document.getElementById("name").value="";
+    document.getElementById("email").value="";
+    document.getElementById("phone").value="";
+    document.getElementById("company").value="";
+}
+
+function changeStatus(id, value){
+    leads = leads.map(lead =>
+        lead.id === id ? {...lead, status:value} : lead
+    );
+
+    saveLeads();
+    renderLeads();
+}
+
+function deleteLead(id){
+    leads = leads.filter(lead => lead.id !== id);
+
+    saveLeads();
+    renderLeads();
+}
+
+function renderLeads(){
+
+    const table = document.getElementById("leadTable");
+
+    table.innerHTML = "";
+
+    leads.forEach(lead => {
+
+        table.innerHTML += `
+        <tr>
+            <td>${lead.name}</td>
+            <td>${lead.email}</td>
+            <td>${lead.phone}</td>
+            <td>${lead.company}</td>
+
+            <td>
+                <select onchange="changeStatus(${lead.id}, this.value)">
+                    <option ${lead.status==="New"?"selected":""}>New</option>
+                    <option ${lead.status==="Contacted"?"selected":""}>Contacted</option>
+                    <option ${lead.status==="Qualified"?"selected":""}>Qualified</option>
+                    <option ${lead.status==="Closed"?"selected":""}>Closed</option>
+                </select>
+            </td>
+
+            <td>
+                <button class="delete-btn"
+                onclick="deleteLead(${lead.id})">
+                Delete
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+
+    document.getElementById("leadCount").innerText = leads.length;
+}
+
+renderLeads();
+
+</script>
+
+</body>
+</html>
+</body>
+</html>
